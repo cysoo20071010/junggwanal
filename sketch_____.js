@@ -51,7 +51,7 @@ function draw() {
   if (!gameStarted) {
     drawStartScreen();
   } else if (gameFinished) {
-    drawSuccessScreen();
+    drawSuccessScreen(); // 성공 화면과 함께 재시작 버튼 표시
   } else {
     drawCards();
     if (isSorted) { // 정렬 확인
@@ -61,6 +61,7 @@ function draw() {
       textSize(32);
       textAlign(CENTER, CENTER);
       text("Success! Time: " + (endTime - startTime) / 1000.0 + "s", width / 2, height / 2);
+      drawRestartButton(); // 성공 후 재시작 버튼 그리기
     }
   }
 }
@@ -82,9 +83,20 @@ function drawSuccessScreen() {
   fill(0);
   textSize(32);
   textAlign(CENTER, CENTER);
-  text("Success!", width / 2, height / 2 - 20);
+  text("Success!", width / 2, height / 2 - 40);
   textSize(24);
-  text("Time: " + (endTime - startTime) / 1000.0 + "s", width / 2, height / 2 + 20);
+  text("Time: " + (endTime - startTime) / 1000.0 + "s", width / 2, height / 2);
+
+  drawRestartButton(); // 성공 화면에서 재시작 버튼 그리기
+}
+
+function drawRestartButton() {
+  fill(100, 255, 200); // 재시작 버튼 색상
+  rect(width / 2 - 100, height / 2 + 40, 200, 50); // 재시작 버튼 크기 및 위치
+  fill(0);
+  textSize(20);
+  textAlign(CENTER, CENTER);
+  text("Restart Game", width / 2, height / 2 + 65);
 }
 
 function mousePressed() {
@@ -93,7 +105,12 @@ function mousePressed() {
         mouseY > height / 2 && mouseY < height / 2 + 50) {
       startGame();
     }
-  } else if (!gameFinished) {
+  } else if (gameFinished) {
+    if (mouseX > width / 2 - 100 && mouseX < width / 2 + 100 &&
+        mouseY > height / 2 + 40 && mouseY < height / 2 + 90) {
+      resetGame(); // 재시작 버튼 클릭 시 게임 리셋
+    }
+  } else {
     let index = getCardIndex(mouseX, mouseY);
     if (index != -1) {
       if (firstSelected == -1) {
@@ -115,7 +132,17 @@ function startGame() {
     selectedCards[i] = cards[i];
   }
   gameStarted = true;
+  gameFinished = false;
   startTime = millis();
+}
+
+function resetGame() {
+  gameStarted = false;
+  gameFinished = false;
+  isSorted = false;
+  firstSelected = -1;
+  secondSelected = -1;
+  setup(); // 게임 재시작을 위해 setup 함수 다시 호출
 }
 
 function shuffleArray(array) {
